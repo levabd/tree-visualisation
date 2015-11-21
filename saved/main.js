@@ -1,3 +1,14 @@
+var fbMask = d3.select(document.getElementById("fbMask"));
+
+function fb_mouseOver() {
+    fbMask.style("display", "none");
+};
+
+function fb_mouseOut() {
+    fbMask.style("display", "block");
+};
+
+
 var m = [20, 120, 20, 120],
     w = 1280 - m[1] - m[3],
     h = 900 - m[0] - m[2],
@@ -6,8 +17,11 @@ var m = [20, 120, 20, 120],
 var spendField = "sum_Federal";
 var actField = "sum_Federal";
 var sumFields = ["Federal", "GovXFer", "State", "Local"];
+var sourceFields = ["Category", "Level1", "Level2", "Level3", "Level4"];
+var colors = [ "#bd0026", "#fecc5c", "#fd8d3c", "#f03b20", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF", "#d7b5d8", "#dd1c77", "#5A0C7A", "#5A0C7A" ];
+var formatNumber = d3.format(",.3f");
 var formatCurrency = function (treeNode) {
-    return "" + treeNode + " Экземпляров";
+    return "" + formatNumber(treeNode) + " Упаковок";
 };
 var tree = d3.layout.tree();
 tree.children(function (treeNode) {
@@ -16,15 +30,17 @@ tree.children(function (treeNode) {
 tree.size([h, w]);
 var toolTip = d3.select(document.getElementById("toolTip"));
 var header = d3.select(document.getElementById("head"));
-var sent = d3.select(document.getElementById("sent"));
-var received = d3.select(document.getElementById("received"));
-var defective = d3.select(document.getElementById("defective"));;
-var defectiveButton = d3.select(document.getElementById("defectiveButton"));
-var receivedButton = d3.select(document.getElementById("receivedButton"));
-var sentButton = d3.select(document.getElementById("sentButton"));
-var defectiveDiv = d3.select(document.getElementById("defectiveDiv"));
-var receivedDiv = d3.select(document.getElementById("receivedDiv"));
-var sentDiv = d3.select(document.getElementById("sentDiv"));
+var header1 = d3.select(document.getElementById("header1"));
+var header2 = d3.select(document.getElementById("header2"));
+var fedSpend = d3.select(document.getElementById("fedSpend"));
+var stateSpend = d3.select(document.getElementById("stateSpend"));
+var localSpend = d3.select(document.getElementById("localSpend"));
+var federalButton = d3.select(document.getElementById("federalButton"));
+var stateButton = d3.select(document.getElementById("stateButton"));
+var localButton = d3.select(document.getElementById("localButton"));
+var federalDiv = d3.select(document.getElementById("federalDiv"));
+var stateDiv = d3.select(document.getElementById("stateDiv"));
+var localDiv = d3.select(document.getElementById("localDiv"));
 var diagonal = d3.svg.diagonal().projection(function (treeNode) {
     return [treeNode.y, treeNode.x];
 });
@@ -70,37 +86,37 @@ d3.csv("FederalBudget_2013_a.csv", function (entry) {
     root.values.forEach(treeNodeVisibility);
     toggle(root.values[2]);
     update(root);
-    receivedButton.on("click", function (treeNode) {
-        receivedButton.attr("class", "selected");
-        defectiveButton.attr("class", null);
-        sentButton.attr("class", null);
-        receivedDiv.attr("class", "selected");
-        defectiveDiv.attr("class", null);
-        sentDiv.attr("class", null);
+    stateButton.on("click", function (treeNode) {
+        stateButton.attr("class", "selected");
+        federalButton.attr("class", null);
+        localButton.attr("class", null);
+        stateDiv.attr("class", "selected");
+        federalDiv.attr("class", null);
+        localDiv.attr("class", null);
         spendField = "sum_State";
         actField = "sum_State";
         prepareRadius();
         update(root);
     });
-    sentButton.on("click", function (treeNode) {
-        sentButton.attr("class", "selected");
-        receivedButton.attr("class", null);
-        defectiveButton.attr("class", null);
-        sentDiv.attr("class", "selected");
-        defectiveDiv.attr("class", null);
-        receivedDiv.attr("class", null);
+    localButton.on("click", function (treeNode) {
+        localButton.attr("class", "selected");
+        stateButton.attr("class", null);
+        federalButton.attr("class", null);
+        localDiv.attr("class", "selected");
+        federalDiv.attr("class", null);
+        stateDiv.attr("class", null);
         spendField = "sum_Local";
         actField = "sum_Local";
         prepareRadius();
         update(root);
     });
-    defectiveButton.on("click", function (treeNode) {
-        defectiveButton.attr("class", "selected");
-        receivedButton.attr("class", null);
-        sentButton.attr("class", null);
-        defectiveDiv.attr("class", "selected");
-        receivedDiv.attr("class", null);
-        sentDiv.attr("class", null);
+    federalButton.on("click", function (treeNode) {
+        federalButton.attr("class", "selected");
+        stateButton.attr("class", null);
+        localButton.attr("class", null);
+        federalDiv.attr("class", "selected");
+        stateDiv.attr("class", null);
+        localDiv.attr("class", null);
         spendField = "sum_Federal";
         prepareRadius();
         update(root);
@@ -195,11 +211,13 @@ function sumNodes(nodeToSum) {
 function update(nodeToUpdate) {
     var durationValue = d3.event && d3.event.altKey ? 5000 : 500;
     var currentNodes = tree.nodes(root).reverse();
+    var currentColor = 0;
     currentNodes.forEach(function (treeNode) {
         treeNode.y = treeNode.depth * 180;
         treeNode.numChildren = (treeNode.children) ? treeNode.children.length : 0;
         if (treeNode.depth == 1) {
-            treeNode.linkColor = "#006600";
+            treeNode.linkColor = colors[(currentColor % (colors.length - 1))];
+            currentColor++;
         };
         if (treeNode.numChildren == 0 && treeNode._children) {
             treeNode.numChildren = treeNode._children.length;
@@ -219,7 +237,7 @@ function update(nodeToUpdate) {
         return "translate(" + nodeToUpdate.y0 + "," + nodeToUpdate.x0 + ")";
     }).on("click", function (treeNode) {
         if (treeNode.numChildren > 50) {
-            alert(treeNode.key + " отправил очень многим поставщикам (" + treeNode.numChildren + "). Корректно визуализировать невозможно.");
+            alert(treeNode.key + " has too many departments (" + treeNode.numChildren + ") to view at once.");
         } else {
             toggle(treeNode);
             update(treeNode);
@@ -373,26 +391,31 @@ function update(nodeToUpdate) {
 
     function animateNode(treeNode) {
         toolTip.transition().duration(200).style("opacity", ".9");
-        header.text(treeNode.key);
-        defective.text(formatCurrency(treeNode.sum_Federal));
-        received.text(formatCurrency(treeNode.sum_State));
-        sent.text(formatCurrency(treeNode.sum_Local));
+        header.text(treeNode.source_Level1);
+        header1.text((treeNode.depth > 1) ? treeNode.source_Level2 : "");
+        header2.html((treeNode.depth > 2) ? treeNode.source_Level3 : "");
+        if (treeNode.depth > 3) {
+            header2.html(header2.html() + " - " + treeNode.source_Level4);
+        };
+        fedSpend.text(formatCurrency(treeNode.sum_Federal));
+        stateSpend.text(formatCurrency(treeNode.sum_State));
+        localSpend.text(formatCurrency(treeNode.sum_Local));
         toolTip.style("left", (d3.event.pageX + 15) + "px").style("top", (d3.event.pageY - 75) + "px");
     };
 };
 
 function toggleButton(buttonToTogle) {
     buttonToTogle.attr("class", "selected");
-    if (buttonToTogle == defectiveButton) {
-        sentButton.attr("class", "unselected");
-        receivedButton.attr("class", "unselected");
+    if (buttonToTogle == federalButton) {
+        localButton.attr("class", "unselected");
+        stateButton.attr("class", "unselected");
     } else {
-        if (buttonToTogle == receivedButton) {
-            sentButton.attr("class", "unselected");
-            defectiveButton.attr("class", "unselected");
+        if (buttonToTogle == stateButton) {
+            localButton.attr("class", "unselected");
+            federalButton.attr("class", "unselected");
         } else {
-            defectiveButton.attr("class", "unselected");
-            receivedButton.attr("class", "unselected");
+            federalButton.attr("class", "unselected");
+            stateButton.attr("class", "unselected");
         };
     };
 };

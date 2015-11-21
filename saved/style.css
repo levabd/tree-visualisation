@@ -108,7 +108,7 @@ div.tooltip {
     text-align: left;
     pointer-events: none;			/* 'none' tells the mouse to ignore the rectangle */
     background: #FFFFEF;
-    width: 525px;
+    width: 400px;
     height: 165px;
     padding: 10px;
     border: 1px solid #D5D5D5;
@@ -123,6 +123,15 @@ div.tooltip {
     box-shadow: 0 1px 5px rgba(0,0,0,0.4);
     -moz-box-shadow: 0 1px 5px rgba(0,0,0,0.4);
     border:1px solid rgba(200,200,200,0.85);
+}
+
+div.tooltipTail {
+    position: absolute;
+    left:-7px;
+    top: 72px;
+    width: 7px;
+    height: 13px;
+    background: url("tail_white.png") 50% 0%;
 }
 
 div.toolTipBody {
