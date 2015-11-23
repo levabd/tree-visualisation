@@ -38,6 +38,51 @@ var level2Radius;
 var level3Radius;
 var level4Radius;
 var alreadySummed = false;
+
+var data = [
+        0 : { 
+            name: "ТОО Жулдыз Кенан"
+            sent: 175, 
+            received: 0,
+            defective: 0,
+            fake: false,
+            parent: null,
+        },
+        1 : { 
+            name: "Склад ТОО Жулдыз Кенан"
+            sent: 175, 
+            received: 175,
+            defective: 0,
+            fake: false,
+            parent: 0,
+        },
+        2 : { 
+            name: "VivaPharm"
+            sent: 135, 
+            received: 120,
+            defective: 0,
+            fake: false,
+            parent: 1,
+        },
+        3 : { 
+            name: "ГКП на ПХВ"
+            sent: 0, 
+            received: 120,
+            defective: 10,
+            fake: true,
+            parent: 2,
+        },
+        3 : { 
+            name: "Перинтальный"
+            sent: 0, 
+            received: 55,
+            defective: 10,
+            fake: true,
+            parent: 1,
+        },
+};
+
+
 d3.csv("FederalBudget_2013_a.csv", function (entry) {
     var treeNodeArray = [];
     entry.forEach(function (treeNode) {
