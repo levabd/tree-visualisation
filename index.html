@@ -13,7 +13,7 @@
     }
 
 </style>
-<body style="height:900px; width:1280px; overflow:auto" onload="start();">
+<body style="height:900px; width:1280px; overflow:auto">
 <div class="nytg-navBar" style="left:20px;">
     <ul class="nytg-navigation clearfix" style="list-style-type:none">
         <li id="receivedButton" class="selected">Приход</li>
@@ -55,7 +55,55 @@
     </div>
 </div>
 
-
+<script type="text/javascript">
+var treeData = [{
+    name: "ТОО Жулдыз Кенан",
+    sent: 175, 
+    received: 0,
+    defective: 0,
+    fake: false,
+    children: [
+        {
+            name: "Склад ТОО Жулдыз Кенан",
+            parent: "ТОО Жулдыз Кенан",
+            sent: 175, 
+            received: 175,
+            defective: 0,
+            fake: false,
+            children: [
+                {
+                    name: "Перинтальный",
+                    parent: "Склад ТОО Жулдыз Кенан",
+                    sent: 0, 
+                    received: 55,
+                    defective: 10,
+                    fake: true,
+                    children: false
+                },
+                {
+                    name: "VivaPharm",
+                    parent: "Склад ТОО Жулдыз Кенан",
+                    sent: 135, 
+                    received: 120,
+                    defective: 0,
+                    fake: false,
+                    children: [
+                        {
+                            name: "ГКП на ПХВ",
+                            parent: "VivaPharm",
+                            sent: 0, 
+                            received: 120,
+                            defective: 10,
+                            fake: true,
+                            children: false
+                        }
+                    ]
+                },
+            ]
+        }
+    ]
+}];
+</script>
 <script type="text/javascript" src="main.js"></script>
 
 </body></html>

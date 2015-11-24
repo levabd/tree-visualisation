@@ -4,6 +4,7 @@ var m = [20, 120, 20, 120],
     i = 0,
     root = {};
 var spendField = "sum_Federal";
+var spendField = "sent";
 var actField = "sum_Federal";
 var sumFields = ["Federal", "GovXFer", "State", "Local"];
 var formatCurrency = function (treeNode) {
@@ -39,51 +40,88 @@ var level3Radius;
 var level4Radius;
 var alreadySummed = false;
 
-var data = [
-        0 : { 
-            name: "ТОО Жулдыз Кенан"
-            sent: 175, 
-            received: 0,
-            defective: 0,
-            fake: false,
-            parent: null,
-        },
-        1 : { 
-            name: "Склад ТОО Жулдыз Кенан"
-            sent: 175, 
-            received: 175,
-            defective: 0,
-            fake: false,
-            parent: 0,
-        },
-        2 : { 
-            name: "VivaPharm"
-            sent: 135, 
-            received: 120,
-            defective: 0,
-            fake: false,
-            parent: 1,
-        },
-        3 : { 
-            name: "ГКП на ПХВ"
-            sent: 0, 
-            received: 120,
-            defective: 10,
-            fake: true,
-            parent: 2,
-        },
-        3 : { 
-            name: "Перинтальный"
-            sent: 0, 
-            received: 55,
-            defective: 10,
-            fake: true,
-            parent: 1,
-        },
+/*
+dren: Array[3]
+depth: 0
+id: 7
+linkColor: undefined
+numChildren: 3
+values: Array[3]
+x: 344
+x0: 344
+y: 0
+y0: 0
+__proto__: Object
+*/
+
+function prepareRadius() {
+    level1Radius = d3.scale.sqrt().domain([0, level1Max[spendField]]).range([1, 40]);
+    level2Radius = d3.scale.sqrt().domain([0, level2Max[spendField]]).range([1, 40]);
+    level3Radius = d3.scale.sqrt().domain([0, level3Max[spendField]]).range([1, 40]);
+    level4Radius = d3.scale.sqrt().domain([0, level4Max[spendField]]).range([1, 40]);
 };
 
+function promoteSumNodes() {
+    for (var i = 0; i < sumFields.length; i++) {
+        level1Max["sum_" + sumFields[i]] = 0;
+        level2Max["sum_" + sumFields[i]] = 0;
+        level3Max["sum_" + sumFields[i]] = 0;
+        level4Max["sum_" + sumFields[i]] = 0;
+    };
+    sumNodes(root.children);
+};
 
-d3.csv("FederalBudget_2013_a.csv", function (entry) {
+root = treeData;
+root.x0 = h / 2;
+root.y0 = 0;
+
+console.log(root);
+
+var currentNodes = tree.nodes(root).reverse();
+tree.children(function (treeNode) {
+    return treeNode.children;
+});
+//promoteSumNodes();
+prepareRadius();
+update(root);
+
+receivedButton.on("click", function (treeNode) {
+    receivedButton.attr("class", "selected");
+    defectiveButton.attr("class", null);
+    sentButton.attr("class", null);
+    receivedDiv.attr("class", "selected");
+    defectiveDiv.attr("class", null);
+    sentDiv.attr("class", null);
+    spendField = "received";
+    actField = "sum_State";
+    prepareRadius();
+    update(root);
+});
+sentButton.on("click", function (treeNode) {
+    sentButton.attr("class", "selected");
+    receivedButton.attr("class", null);
+    defectiveButton.attr("class", null);
+    sentDiv.attr("class", "selected");
+    defectiveDiv.attr("class", null);
+    receivedDiv.attr("class", null);
+    spendField = "sent";
+    actField = "sum_Local";
+    prepareRadius();
+    update(root);
+});
+defectiveButton.on("click", function (treeNode) {
+    defectiveButton.attr("class", "selected");
+    receivedButton.attr("class", null);
+    sentButton.attr("class", null);
+    defectiveDiv.attr("class", "selected");
+    receivedDiv.attr("class", null);
+    sentDiv.attr("class", null);
+    spendField = "defective";
+    prepareRadius();
+    update(root);
+});
+
+/*d3.csv("FederalBudget_2013_a.csv", function (entry) {
     var treeNodeArray = [];
     entry.forEach(function (treeNode) {
         var nodeValuesSum = 0;
@@ -94,6 +132,7 @@ d3.csv("FederalBudget_2013_a.csv", function (entry) {
             treeNodeArray.push(treeNode);
         };
     });
+    console.log(treeNodeArray);
     var levelValues = d3.nest().key(function (treeNode) {
         return treeNode.Level1;
     }).key(function (treeNode) {
@@ -101,10 +140,12 @@ d3.csv("FederalBudget_2013_a.csv", function (entry) {
     }).key(function (treeNode) {
         return treeNode.Level3;
     }).entries(treeNodeArray);
+    console.log(levelValues);
     root = {};
     root.values = levelValues;
     root.x0 = h / 2;
     root.y0 = 0;
+    console.log(root);
     var currentNodes = tree.nodes(root).reverse();
     tree.children(function (treeNode) {
         return treeNode.children;
@@ -179,7 +220,7 @@ d3.csv("FederalBudget_2013_a.csv", function (entry) {
             };
         };
     };
-});
+});*/
 
 function setSourceFields(values, sourceFields) {
     if (sourceFields) {
@@ -239,7 +280,9 @@ function sumNodes(nodeToSum) {
 
 function update(nodeToUpdate) {
     var durationValue = d3.event && d3.event.altKey ? 5000 : 500;
+    console.log(tree);
     var currentNodes = tree.nodes(root).reverse();
+    console.log(currentNodes);
     currentNodes.forEach(function (treeNode) {
         treeNode.y = treeNode.depth * 180;
         treeNode.numChildren = (treeNode.children) ? treeNode.children.length : 0;
