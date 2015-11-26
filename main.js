@@ -6,6 +6,7 @@ var defective = d3.select(document.getElementById("defective"));;
 var defectiveButton = d3.select(document.getElementById("defectiveButton"));
 var receivedButton = d3.select(document.getElementById("receivedButton"));
 var sentButton = d3.select(document.getElementById("sentButton"));
+var sumButton = d3.select(document.getElementById("sumButton"));
 var defectiveDiv = d3.select(document.getElementById("defectiveDiv"));
 var receivedDiv = d3.select(document.getElementById("receivedDiv"));
 var sentDiv = d3.select(document.getElementById("sentDiv"));
@@ -31,10 +32,53 @@ var svg = d3.select("body").append("svg")
 
 // load data
 root = treeData;
-update(root);
+update(root, "sum");
 
-function update(source) {
+receivedButton.on("click", function (treeNode) {
+    receivedButton.attr("class", "selected");
+    defectiveButton.attr("class", null);
+    sentButton.attr("class", null);
+    receivedDiv.attr("class", "selected");
+    sumButton.attr("class", null);
+    defectiveDiv.attr("class", null);
+    sentDiv.attr("class", null);
+    update(root, "received");
+});
+sentButton.on("click", function (treeNode) {
+    sentButton.attr("class", "selected");
+    receivedButton.attr("class", null);
+    defectiveButton.attr("class", null);
+    sentDiv.attr("class", "selected");
+    sumButton.attr("class", null);
+    defectiveDiv.attr("class", null);
+    receivedDiv.attr("class", null);
+    update(root, "sent");
+});
+defectiveButton.on("click", function (treeNode) {
+    defectiveButton.attr("class", "selected");
+    receivedButton.attr("class", null);
+    sentButton.attr("class", null);
+    defectiveDiv.attr("class", "selected");
+    sumButton.attr("class", null);
+    receivedDiv.attr("class", null);
+    sentDiv.attr("class", null);
+    update(root, "defective");
+});
+sumButton.on("click", function (treeNode) {
+    sumButton.attr("class", "selected");
+    defectiveButton.attr("class", null);
+    receivedButton.attr("class", null);
+    sentButton.attr("class", null);
+    defectiveButton.attr("class", null);
+    defectiveDiv.attr("class", null);
+    receivedDiv.attr("class", null);
+    sentDiv.attr("class", null);
+    update(root, "sum");
+});
 
+function update(source, mode) {
+  var durationValue = d3.event && d3.event.altKey ? 5000 : 500;
+  console.log(mode);
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
@@ -50,13 +94,70 @@ function update(source) {
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
       .attr("transform", function(d) { 
-          return "translate(" + d.y + "," + d.x + ")"; });
+          return "translate(" + d.y + "," + d.x + ")"; })
+      .on("click", function (treeNode) {
+        if (treeNode.numChildren > 50) {
+            alert(treeNode.name + " отправил очень многим поставщикам (" + treeNode.numChildren + "). Корректно визуализировать невозможно.");
+        } else {
+            toggle(treeNode);
+            update(treeNode, mode);
+        };
+    });;
+
+  var nodeTransform = node.transition().duration(durationValue).attr("transform", function (treeNode) {
+        return "translate(" + treeNode.y + "," + treeNode.x + ")";
+    });
+
+  nodeTransform.select("circle")
+  .attr("r", function(d){
+    var rez = (d.received - d.defective - d.sent) / 4;
+    
+    switch(mode) {
+        case "sum":
+            break;
+        case "received":
+            rez =  d.received / 4;
+            break;
+        case "defective":
+            rez = d.defective;
+            break;
+        case "sent":
+            rez = d.sent / 4;
+            break;
+        default:
+            break;
+    }
+    
+    return (rez > 5) ? rez : 5;
+  });
 
   nodeEnter.append("circle")
-      .attr("r", 10)
+      .attr("r", function(d){
+        var rez = (d.received - d.defective - d.sent) / 4;
+        
+        switch(mode) {
+            case "sum":
+                break;
+            case "received":
+                rez =  d.received / 100;
+                break;
+            case "defective":
+                rez = d.defective / 100;
+                break;
+            case "sent":
+                rez = d.sent / 1000;
+                break;
+            default:
+                break;
+        }
+        
+        return (rez > 5) ? rez : 5;
+      })
       .style("fill", function(d) { 
         return d.fake ? "red" : "green"
       })
+      .style("stroke", "#444")
+      .style("stroke-width", "2px")
       .on("mouseover", function (d) {
         animateNode(d);
       })
@@ -84,14 +185,15 @@ function update(source) {
         return "translate(" + treeNode.y + "," + treeNode.x + ")";
     });*/
 
-  /*nodeEnter.append("text")
+  nodeEnter.append("text")
       .attr("x", function(d) { 
-          return d.children || d._children ? -13 : 13; })
-      .attr("dy", ".35em")
+          return d.children || d._children ? 20 : 15; })
+      .attr("dy", "-1.35em")
+      .style("font-size","12px")
       .attr("text-anchor", function(d) { 
           return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
-      .style("fill-opacity", 1);*/
+      .style("fill-opacity", 1);
 
   // Declare the links…
   var link = svg.selectAll("path.link")
@@ -100,7 +202,9 @@ function update(source) {
   // Enter the links.
   link.enter().insert("path", "g")
       .attr("class", "link")
-      .attr("d", diagonal);
+      .attr("d", diagonal)
+      .style("stroke", "#888")
+      .style("stroke-width", "3px");
 
   function animateNode(treeNode) {
         toolTip.transition().duration(200).style("opacity", ".9");
@@ -113,3 +217,13 @@ function update(source) {
     };
 
 }
+
+function toggle(treeNode) {
+    if (treeNode.children) {
+        treeNode._children = treeNode.children;
+        treeNode.children = null;
+    } else {
+        treeNode.children = treeNode._children;
+        treeNode._children = null;
+    };
+};

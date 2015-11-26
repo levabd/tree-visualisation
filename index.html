@@ -16,7 +16,8 @@
 <body style="height:900px; width:1280px; overflow:auto">
 <div class="nytg-navBar" style="left:20px;">
     <ul class="nytg-navigation clearfix" style="list-style-type:none">
-        <li id="receivedButton" class="selected">Приход</li>
+        <li id="sumButton" class="selected">Остатки</li>
+        <li id="receivedButton">Приход</li>
         <li id="sentButton">Отправка</li>
         <li id="defectiveButton">Брак</li>
     </ul>
@@ -27,7 +28,7 @@
     Движение препаратов
     <div class="hint" style="font-style:italic;">
         Нажмите на кружки для более подробной информации.<br>
-        Нажмите на "Приход", "Отправка" или "Брак" для получения соответствующей информации.
+        Нажмите на "Приход", "Отправка", "Остатки" или "Брак" для получения соответствующей информации.
     </div>
 
 </div>
@@ -37,7 +38,7 @@
 <div id="toolTip" class="tooltip" style="opacity:0;">
     <div id="head" class="header"></div>
     <div style="position:absolute; left:10px">
-        <div id="receivedDiv" style="width:125px; left:0px; top:10px; position: absolute;" class="selected">
+        <div id="receivedDiv" style="width:125px; left:0px; top:10px; position: absolute;">
             <div class="header3"><br>Приход</div>
             <div class="header-rule"></div>
             <div id="received" class="header4"></div>
@@ -83,7 +84,7 @@ var treeData = {
                 {
                     name: "VivaPharm",
                     parent: "Склад ТОО Жулдыз Кенан",
-                    sent: 135, 
+                    sent: 115, 
                     received: 120,
                     defective: 0,
                     fake: false,
