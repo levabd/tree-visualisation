@@ -163,27 +163,10 @@ function update(source, mode) {
       })
       .on("mouseout", function (d) {
         toolTip.transition().duration(500).style("opacity", "0");
-      })/*.style("fill", function (treeNode) {
-        return treeNode.source ? treeNode.source.linkColor : treeNode.linkColor;
-    }).style("fill-opacity", ".8").style("stroke", function (treeNode) {
-        return treeNode.source ? treeNode.source.linkColor : treeNode.linkColor;
-    });
-    drawedNode.append("svg:text").attr("x", function (treeNode) {
-        return treeNode.children || treeNode._children ? -10 : 10;
-    }).attr("dy", ".35em").attr("text-anchor", function (treeNode) {
-        return treeNode.children || treeNode._children ? "end" : "start";
-    }).text(function (treeNode) {
-        var nodeDescription = (treeNode.depth == 4) ? treeNode.Level4 : treeNode.key;
-        nodeDescription = (String(nodeDescription).length > 25) ? String(nodeDescription).substr(0, 22) + "..." : nodeDescription;
-        return nodeDescription;
-    }).on("mouseover", function (treeNode) {
-        animateNode(treeNode);
-    }).on("mouseout", function (treeNode) {
-        toolTip.transition().duration(500).style("opacity", "0");
-    }).style("fill-opacity", "0");
-    var nodeTransform = currentNode.transition().duration(durationValue).attr("transform", function (treeNode) {
-        return "translate(" + treeNode.y + "," + treeNode.x + ")";
-    });*/
+      })
+      .on("click", function (d) {
+        window.location.href = "http://dari.cabinet.wiponapp.com:2224/app/feedback-by-place-id/" + d.id;
+      });
 
   nodeEnter.append("text")
       .attr("x", function(d) { 
